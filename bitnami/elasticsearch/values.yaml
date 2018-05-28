@@ -17,6 +17,9 @@ image:
   # pullSecrets:
   #   - myRegistrKeySecretName
 
+httpProxyHost: 10.43.216.8
+httpProxyPort: 8080
+
 ## does your cluster have rbac enabled? assume yes by default
 rbacEnabled: true
 
