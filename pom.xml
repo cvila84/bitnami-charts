@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <prerequisites>
+    <maven>3.3.9</maven>
+  </prerequisites>
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.gemalto.telecom.ota</groupId>
+  <artifactId>bitnami-elasticsearch</artifactId>
+  <packaging>jar</packaging>
+  <version>1.0.0-SNAPSHOT</version>
+  <name>Bitnami Elasticsearch</name>
+
+  <properties>
+
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <project.helm.version>0.1.6</project.helm.version>
+    <project.helm.name>es</project.helm.name>
+    <project.helm.namespace>logging</project.helm.namespace>
+    <dockerhub.password>admin123</dockerhub.password>
+
+  </properties>
+
+  <!-- *** Build ************************************************************************************************* -->
+
+  <build>
+
+    <finalName>${project.artifactId}</finalName>
+
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+
+    <plugins>
+
+      <!-- %%% Plugin: Resources %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.0.2</version>
+        <executions>
+          <execution>
+            <id>generate-exploded-chart</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/exploded-chart/${project.artifactId}</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${project.basedir}/bitnami/elasticsearch</directory>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- %%% Plugin: Exec %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>1.6.0</version>
+        <executions>
+          <execution>
+            <id>exec-helm-delete</id>
+            <phase>clean</phase>
+            <configuration>
+              <executable>helm</executable>
+              <commandlineArgs>delete ${project.helm.name} --purge</commandlineArgs>
+              <successCodes>
+                <successCode>0</successCode>
+                <successCode>1</successCode>
+              </successCodes>
+            </configuration>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>exec-helm-repo-add-dev</id>
+            <phase>process-test-classes</phase>
+            <configuration>
+              <executable>helm</executable>
+              <commandlineArgs>repo add gemalto http://dockerhub.gemalto.com/repository/helm/ota-cloud</commandlineArgs>
+            </configuration>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>exec-helm-lint</id>
+            <phase>test</phase>
+            <configuration>
+              <executable>helm</executable>
+              <commandlineArgs>lint ${project.build.directory}/exploded-chart/${project.artifactId}</commandlineArgs>
+            </configuration>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>exec-helm-dependency</id>
+            <phase>package</phase>
+            <configuration>
+              <executable>helm</executable>
+              <commandlineArgs>dependency update ${project.build.directory}/exploded-chart/${project.artifactId}</commandlineArgs>
+              <environmentVariables>
+                <HTTP_PROXY>http://10.43.216.8:8080</HTTP_PROXY>
+                <NO_PROXY>dockerhub.gemalto.com</NO_PROXY>
+              </environmentVariables>
+            </configuration>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>exec-helm-package</id>
+            <phase>package</phase>
+            <configuration>
+              <executable>helm</executable>
+              <commandlineArgs>package ${project.build.directory}/exploded-chart/${project.artifactId} -d ${project.build.directory}</commandlineArgs>
+            </configuration>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>exec-helm-install</id>
+            <phase>pre-integration-test</phase>
+            <configuration>
+              <executable>helm</executable>
+              <commandlineArgs>install ${project.build.directory}/${project.artifactId}-${project.helm.version}.tgz --namespace ${project.helm.namespace} --name ${project.helm.name} --wait --debug</commandlineArgs>
+            </configuration>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>exec-helm-repo-update</id>
+            <phase>install</phase>
+            <configuration>
+              <executable>helm</executable>
+              <commandlineArgs>repo update</commandlineArgs>
+              <environmentVariables>
+                <HTTP_PROXY>http://10.43.216.8:8080</HTTP_PROXY>
+                <NO_PROXY>dockerhub.gemalto.com</NO_PROXY>
+              </environmentVariables>
+            </configuration>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>exec-helm-repo-index</id>
+            <phase>install</phase>
+            <configuration>
+              <executable>helm</executable>
+              <commandlineArgs>repo index --merge ${env.HOMEDRIVE}${env.HOMEPATH}/.helm/repository/cache/gemalto-index.yaml ${project.build.directory}</commandlineArgs>
+            </configuration>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>exec-curl-upload-index</id>
+            <phase>install</phase>
+            <configuration>
+              <executable>curl</executable>
+              <commandlineArgs>--user 'admin:${dockerhub.password}' --upload-file ${project.build.directory}/index.yaml http://dockerhub.gemalto.com/repository/helm/ota-cloud/index.yaml</commandlineArgs>
+            </configuration>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>exec-curl-upload-chart</id>
+            <phase>install</phase>
+            <configuration>
+              <executable>curl</executable>
+              <commandlineArgs>--user 'admin:${dockerhub.password}' --upload-file ${project.build.directory}/${project.artifactId}-${project.helm.version}.tgz http://dockerhub.gemalto.com/repository/helm/ota-cloud/${project.artifactId}-${project.helm.version}.tgz</commandlineArgs>
+            </configuration>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+    </plugins>
+
+  </build>
+
+</project>

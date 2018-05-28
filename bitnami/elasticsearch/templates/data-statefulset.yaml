@@ -71,6 +71,8 @@ spec:
           value: "yes"
         - name: ELASTICSEARCH_NODE_TYPE
           value: "data"
+        - name: ES_JAVA_OPTS
+          value: "-Dhttp.proxyHost={{ .Values.httpProxyHost }} -Dhttp.proxyPort={{ .Values.httpProxyPort }} -Dhttps.proxyHost={{ .Values.httpProxyHost }} -Dhttps.proxyPort={{ .Values.httpProxyPort }}"
         ports:
         - name: transport
           containerPort: 9300
