@@ -8,7 +8,7 @@
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.gemalto.telecom.ota</groupId>
-  <artifactId>bitnami-elasticsearch</artifactId>
+  <artifactId>elasticsearch</artifactId>
   <packaging>jar</packaging>
   <version>1.0.0-SNAPSHOT</version>
   <name>Bitnami Elasticsearch</name>
@@ -17,7 +17,7 @@
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <project.helm.version>1.0.0</project.helm.version>
+    <project.helm.version>0.1.6</project.helm.version>
     <project.helm.name>es</project.helm.name>
     <project.helm.namespace>logging</project.helm.namespace>
     <dockerhub.password>CHANGEME</dockerhub.password>
@@ -89,7 +89,7 @@
             <phase>process-test-classes</phase>
             <configuration>
               <executable>helm</executable>
-              <commandlineArgs>repo add gemalto-incubator http://dockerhub.gemalto.com/repository/helm/ota-cloud/incubator</commandlineArgs>
+              <commandlineArgs>repo add ota-cloud-incubator http://dockerhub.gemalto.com/repository/helm/ota-cloud/incubator</commandlineArgs>
             </configuration>
             <goals>
               <goal>exec</goal>
