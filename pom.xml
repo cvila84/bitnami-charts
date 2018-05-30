@@ -17,10 +17,10 @@
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <project.helm.version>0.1.6</project.helm.version>
+    <project.helm.version>1.0.0</project.helm.version>
     <project.helm.name>es</project.helm.name>
     <project.helm.namespace>logging</project.helm.namespace>
-    <dockerhub.password>admin123</dockerhub.password>
+    <dockerhub.password>CHANGEME</dockerhub.password>
 
   </properties>
 
@@ -89,7 +89,7 @@
             <phase>process-test-classes</phase>
             <configuration>
               <executable>helm</executable>
-              <commandlineArgs>repo add gemalto http://dockerhub.gemalto.com/repository/helm/ota-cloud</commandlineArgs>
+              <commandlineArgs>repo add gemalto-incubator http://dockerhub.gemalto.com/repository/helm/ota-cloud/incubator</commandlineArgs>
             </configuration>
             <goals>
               <goal>exec</goal>
@@ -163,7 +163,7 @@
             <phase>install</phase>
             <configuration>
               <executable>helm</executable>
-              <commandlineArgs>repo index --merge ${env.HOMEDRIVE}${env.HOMEPATH}/.helm/repository/cache/gemalto-index.yaml ${project.build.directory}</commandlineArgs>
+              <commandlineArgs>repo index --merge ${env.HOMEDRIVE}${env.HOMEPATH}/.helm/repository/cache/ota-cloud-incubator-index.yaml ${project.build.directory}</commandlineArgs>
             </configuration>
             <goals>
               <goal>exec</goal>
@@ -174,7 +174,7 @@
             <phase>install</phase>
             <configuration>
               <executable>curl</executable>
-              <commandlineArgs>--user 'admin:${dockerhub.password}' --upload-file ${project.build.directory}/index.yaml http://dockerhub.gemalto.com/repository/helm/ota-cloud/index.yaml</commandlineArgs>
+              <commandlineArgs>--user 'admin:${dockerhub.password}' --upload-file ${project.build.directory}/index.yaml http://dockerhub.gemalto.com/repository/helm/ota-cloud/incubator/index.yaml</commandlineArgs>
             </configuration>
             <goals>
               <goal>exec</goal>
@@ -185,7 +185,7 @@
             <phase>install</phase>
             <configuration>
               <executable>curl</executable>
-              <commandlineArgs>--user 'admin:${dockerhub.password}' --upload-file ${project.build.directory}/${project.artifactId}-${project.helm.version}.tgz http://dockerhub.gemalto.com/repository/helm/ota-cloud/${project.artifactId}-${project.helm.version}.tgz</commandlineArgs>
+              <commandlineArgs>--user 'admin:${dockerhub.password}' --upload-file ${project.build.directory}/${project.artifactId}-${project.helm.version}.tgz http://dockerhub.gemalto.com/repository/helm/ota-cloud/incubator/${project.artifactId}-${project.helm.version}.tgz</commandlineArgs>
             </configuration>
             <goals>
               <goal>exec</goal>
