@@ -20,7 +20,7 @@
     <project.helm.version>0.1.6</project.helm.version>
     <project.helm.name>es</project.helm.name>
     <project.helm.namespace>logging</project.helm.namespace>
-    <dockerhub.password>admin123</dockerhub.password>
+    <dockerhub.password>CHANGEME</dockerhub.password>
 
   </properties>
 
