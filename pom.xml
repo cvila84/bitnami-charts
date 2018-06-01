@@ -20,7 +20,7 @@
     <project.helm.version>0.1.6</project.helm.version>
     <project.helm.name>es</project.helm.name>
     <project.helm.namespace>logging</project.helm.namespace>
-    <dockerhub.password>CHANGEME</dockerhub.password>
+    <dockerhub.password>admin123</dockerhub.password>
 
   </properties>
 
@@ -89,7 +89,7 @@
             <phase>process-test-classes</phase>
             <configuration>
               <executable>helm</executable>
-              <commandlineArgs>repo add ota-cloud-incubator http://dockerhub.gemalto.com/repository/helm/ota-cloud/incubator</commandlineArgs>
+              <commandlineArgs>repo add ota-incubator http://dockerhub.gemalto.com/repository/helm/ota-cloud/incubator</commandlineArgs>
             </configuration>
             <goals>
               <goal>exec</goal>
@@ -163,7 +163,7 @@
             <phase>install</phase>
             <configuration>
               <executable>helm</executable>
-              <commandlineArgs>repo index --merge ${env.HOMEDRIVE}${env.HOMEPATH}/.helm/repository/cache/ota-cloud-incubator-index.yaml ${project.build.directory}</commandlineArgs>
+              <commandlineArgs>repo index --merge ${env.HOMEDRIVE}${env.HOMEPATH}/.helm/repository/cache/ota-incubator-index.yaml ${project.build.directory}</commandlineArgs>
             </configuration>
             <goals>
               <goal>exec</goal>
